@@ -24,10 +24,13 @@ from keras.layers import Dense, Input, Flatten
 from keras.layers import Conv1D, MaxPooling1D, Embedding
 from keras.models import Model
 import sys
+import pickle
 
 BASE_DIR = ''
 GLOVE_DIR = BASE_DIR + 'glove.6B/'
-TEXT_DATA_DIR = BASE_DIR + '20_newsgroup/'
+JOKE_DIR = BASE_DIR + 'joke-data/'
+JOKE_FNAMES = ['humorous_jokes.pickle', 'short_oneliners.pickle']
+NONJOKE_FNAMES = ['short_wiki_sentences.pickle']
 MAX_SEQUENCE_LENGTH = 1000
 MAX_NB_WORDS = 20000
 EMBEDDING_DIM = 100
@@ -41,6 +44,9 @@ print('Indexing word vectors.')
 embeddings_index = {}
 f = open(os.path.join(GLOVE_DIR, 'glove.6B.100d.txt'))
 for line in f:
+    # TODO remove
+    # if len(embeddings_index) > 100:
+    #     break
     values = line.split()
     word = values[0]
     coefs = np.asarray(values[1:], dtype='float32')
@@ -53,23 +59,23 @@ print('Found %s word vectors.' % len(embeddings_index))
 print('Processing text dataset')
 
 texts = []  # list of text samples
-labels_index = {}  # dictionary mapping label name to numeric id
 labels = []  # list of label ids
-for name in sorted(os.listdir(TEXT_DATA_DIR)):
-    path = os.path.join(TEXT_DATA_DIR, name)
-    if os.path.isdir(path):
-        label_id = len(labels_index)
-        labels_index[name] = label_id
-        for fname in sorted(os.listdir(path)):
-            if fname.isdigit():
-                fpath = os.path.join(path, fname)
-                if sys.version_info < (3,):
-                    f = open(fpath)
-                else:
-                    f = open(fpath, encoding='latin-1')
-                texts.append(f.read())
-                f.close()
-                labels.append(label_id)
+
+for name in JOKE_FNAMES:
+    path = os.path.join(JOKE_DIR, name)
+    with open(path, 'rb') as f:
+        b = pickle.load(f, encoding='latin1')
+        for l in b:
+            texts.append(l)
+            labels.append(1)
+
+for name in NONJOKE_FNAMES:
+    path = os.path.join(JOKE_DIR, name)
+    with open(path, 'rb') as f:
+        b = pickle.load(f, encoding='latin1')
+        for l in b:
+            texts.append(l)
+            labels.append(0)
 
 print('Found %s texts.' % len(texts))
 
@@ -92,12 +98,9 @@ indices = np.arange(data.shape[0])
 np.random.shuffle(indices)
 data = data[indices]
 labels = labels[indices]
-nb_validation_samples = int(VALIDATION_SPLIT * data.shape[0])
 
-x_train = data[:-nb_validation_samples]
-y_train = labels[:-nb_validation_samples]
-x_val = data[-nb_validation_samples:]
-y_val = labels[-nb_validation_samples:]
+x_train = data[:]
+y_train = labels[:]
 
 print('Preparing embedding matrix.')
 
@@ -133,13 +136,16 @@ x = Conv1D(128, 5, activation='relu')(x)
 x = MaxPooling1D(35)(x)
 x = Flatten()(x)
 x = Dense(128, activation='relu')(x)
-preds = Dense(len(labels_index), activation='softmax')(x)
+preds = Dense(2, activation='softmax')(x)
 
 model = Model(sequence_input, preds)
-model.compile(loss='categorical_crossentropy',
-              optimizer='rmsprop',
-              metrics=['acc'])
+model.compile(loss='binary_crossentropy',
+              optimizer='adam', metrics=['accuracy'])
 
 # happy learning!
-model.fit(x_train, y_train, validation_data=(x_val, y_val),
-          nb_epoch=2, batch_size=128)
+stat = model.fit(x_train, y_train,
+                 nb_epoch=1, batch_size=128, validation_split=VALIDATION_SPLIT)
+
+model.save_weights('weights')
+
+print('done. ' + str(stat))
