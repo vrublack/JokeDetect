@@ -13,9 +13,12 @@ http://www.cs.cmu.edu/afs/cs.cmu.edu/project/theo-20/www/data/news20.html
 
 from __future__ import print_function
 import os
+import random
+
 import numpy as np
 
 np.random.seed(1337)
+random.seed(1337)
 
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
@@ -34,6 +37,7 @@ NONJOKE_FNAMES = ['short_wiki_sentences.pickle']
 MAX_SEQUENCE_LENGTH = 1000
 MAX_NB_WORDS = 20000
 EMBEDDING_DIM = 100
+VALIDATION_SPLIT = 0.2
 
 # first, build index mapping words in the embeddings set
 # to their embedding vector
@@ -44,8 +48,8 @@ embeddings_index = {}
 f = open(os.path.join(GLOVE_DIR, 'glove.6B.100d.txt'))
 for line in f:
     # TODO remove
-    if len(embeddings_index) > 100:
-        break
+    # if len(embeddings_index) > 100:
+    #     break
     values = line.split()
     word = values[0]
     coefs = np.asarray(values[1:], dtype='float32')
@@ -60,8 +64,21 @@ print('Processing text dataset')
 texts = []  # list of text samples
 labels = []  # list of label ids
 
-texts.append('What is the difference between a cow and a truck? The wheels.')
-labels.append(1)
+for name in JOKE_FNAMES:
+    path = os.path.join(JOKE_DIR, name)
+    with open(path, 'rb') as f:
+        b = pickle.load(f, encoding='latin1')
+        for l in b:
+            texts.append(l)
+            labels.append(1)
+
+for name in NONJOKE_FNAMES:
+    path = os.path.join(JOKE_DIR, name)
+    with open(path, 'rb') as f:
+        b = pickle.load(f, encoding='latin1')
+        for l in b:
+            texts.append(l)
+            labels.append(0)
 
 print('Found %s texts.' % len(texts))
 
@@ -128,9 +145,54 @@ model = Model(sequence_input, preds)
 model.compile(loss='binary_crossentropy',
               optimizer='adam', metrics=['accuracy'])
 
+# happy learning!
 model.load_weights('weights')
 
-# happy learning!
-y_pred = model.predict(x_train[:10])
+def make_predict_data():
+    texts = []  # list of text samples
+    labels = []  # list of label ids
 
-print('done. ' + str(y_pred))
+    texts.append("What's the difference between a cow and a truck? The wheels.")
+    labels.append(1)
+    texts.append("Knock knoch. Who's there? A watch!")
+    labels.append(1)
+    texts.append("In the sixteenths century, Poland has seen a big influx in immigrants.")
+    labels.append(0)
+    texts.append("Why did the chicken cross the road?")
+    labels.append(1)
+    texts.append("The united kingdom has a population of about 300 people")
+    labels.append(0)
+
+
+
+    print('Found %s texts.' % len(texts))
+
+    # finally, vectorize the text samples into a 2D integer tensor
+    sequences = tokenizer.texts_to_sequences(texts)
+
+    word_index = tokenizer.word_index
+    print('Found %s unique tokens.' % len(word_index))
+
+    data = pad_sequences(sequences, maxlen=MAX_SEQUENCE_LENGTH)
+
+    labels = to_categorical(np.asarray(labels))
+    print('Shape of data tensor:', data.shape)
+    print('Shape of label tensor:', labels.shape)
+
+    # split the data into a training set and a validation set
+    indices = np.arange(data.shape[0])
+    data = data[indices]
+    labels = labels[indices]
+
+    x_train = data[:]
+    y_train = labels[:]
+
+    return x_train, y_train
+
+del embeddings_index
+
+x_train, y_train = make_predict_data()
+
+predict = model.predict(x_train)
+
+print('done. ' + str(predict))

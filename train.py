@@ -144,7 +144,7 @@ model.compile(loss='binary_crossentropy',
 
 # happy learning!
 stat = model.fit(x_train, y_train,
-                 nb_epoch=1, batch_size=128, validation_split=VALIDATION_SPLIT)
+                 nb_epoch=2, batch_size=128, validation_split=VALIDATION_SPLIT)
 
 model.save_weights('weights')
 
