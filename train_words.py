@@ -116,8 +116,6 @@ labels = labels[indices]
 x_train = data[:]
 y_train = labels[:]
 
-del embeddings_index
-
 print('Preparing embedding matrix.')
 
 # prepare embedding matrix
