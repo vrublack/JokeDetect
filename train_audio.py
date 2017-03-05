@@ -17,8 +17,8 @@ jokes = os.listdir(JOKES_DIR)
 nonjokes = os.listdir(NONJOKES_DIR)
 
 MAX_SERIES_LENGTH = 100
-VALIDATION_SPLIT = 0.1
-LSTM_UNITS = 50
+VALIDATION_SPLIT = 0.5
+LSTM_UNITS = 200
 
 n = len(jokes) + len(nonjokes)
 Y = np.zeros(shape=[n], dtype=int)
@@ -26,29 +26,26 @@ Y = np.zeros(shape=[n], dtype=int)
 i = 0
 a = []
 for fname in jokes:
-    data = np.genfromtxt(os.path.join(JOKES_DIR, fname), dtype=float, delimiter=' ', usecols=[1])
+    data = np.genfromtxt(os.path.join(JOKES_DIR, fname), dtype=float, delimiter=' ')
     a.append(data)
     Y[i] = 1
     i += 1
 
 for fname in nonjokes:
-    data = np.genfromtxt(os.path.join(NONJOKES_DIR, fname), dtype=float, delimiter=' ', usecols=[1])
+    data = np.genfromtxt(os.path.join(NONJOKES_DIR, fname), dtype=float, delimiter=' ')
     a.append(data)
     Y[i] = 0
     i += 1
 
-X = sequence.pad_sequences(a, dtype=float, padding='post', maxlen=MAX_SERIES_LENGTH, truncating='post', value=0.)
+X = sequence.pad_sequences(a, dtype=float, padding='post', truncating='post', value=0.)
 
-X_reshaped = np.zeros(shape=[X.shape[0], X.shape[1], 1], dtype=float)
-X_reshaped[:, :, 0] = X[:, :]
+# X_reshaped = np.zeros(shape=[X.shape[0], X.shape[1], 1], dtype=float)
+# X_reshaped[:, :, 0] = X[:, :]
 
-# preprocessing
-standardized_X = preprocessing.scale(X, with_std=True)
-
-X, Y = shuffle(X_reshaped, Y)
+X, Y = shuffle(X, Y)
 
 model = Sequential()
-model.add(LSTM(LSTM_UNITS, input_dim=1))  # try using a GRU instead, for fun
+model.add(LSTM(LSTM_UNITS, input_dim=X.shape[2]))  # try using a GRU instead, for fun
 model.add(Dense(1))
 
 # try using different optimizers and different optimizer configs

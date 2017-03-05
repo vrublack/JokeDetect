@@ -1,21 +1,25 @@
 import os
 import subprocess
+from vad import VAD
+import numpy as np
+from scipy.io.wavfile import read
 
 AUDIO_DIR = 'audio/jokes'
 NONAUDIO_DIR = 'audio/nonjokes'
 
+
+def decode(fname):
+    a = read(fname)
+    return np.array(a[1], dtype=float)
+
 for fname in os.listdir(AUDIO_DIR):
     if fname.endswith('.mp3') or fname.endswith('.wav'):
         fpath = os.path.join(AUDIO_DIR, fname)
-        output_fpath = os.path.join(AUDIO_DIR, 'processed', fname[:-4] + '.txt')
-        # aubiopitch --input /Users/valentin/Downloads/Bar_Dog.mp3 -H 2000 -r 10000
-        f = open(output_fpath, 'w')
-        subprocess.call(['aubiopitch', '--input', fpath, '-H', '1024', '-r', '10000'], stdout=f)
+        a = decode(fpath)
+        detector = VAD(fs=16000)
+        speech = detector.detect_speech(a, threshold=0.1)
+        print('You ugly, you your daddys son.')
 
 for fname in os.listdir(NONAUDIO_DIR):
     if fname.endswith('.mp3') or fname.endswith('.wav'):
         fpath = os.path.join(NONAUDIO_DIR, fname)
-        output_fpath = os.path.join(NONAUDIO_DIR, 'processed', fname[:-4] + '.txt')
-        # aubiopitch --input /Users/valentin/Downloads/Bar_Dog.mp3 -H 2000 -r 10000
-        f = open(output_fpath, 'w')
-        subprocess.call(['aubiopitch', '--input', fpath, '-H', '1024', '-r', '10000'], stdout=f)
