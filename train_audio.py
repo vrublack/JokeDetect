@@ -8,14 +8,12 @@ from keras.preprocessing import sequence
 from sklearn import preprocessing
 from sklearn.utils import shuffle
 
-
 MAX_SERIES_LENGTH = 100
 VALIDATION_SPLIT = 0.1
 LSTM_UNITS = 150
 
 
 def make_model():
-
     np.random.seed(1235)
 
     JOKES_DIR = 'audio/jokes/processed'
@@ -59,12 +57,14 @@ def make_model():
 
     return model, X, Y
 
-model, X, Y = make_model()
 
-print('Train...')
-model.fit(X, Y, batch_size=25, nb_epoch=20,
-          validation_split=VALIDATION_SPLIT)
+if __name__ == '__main__':
+    model, X, Y = make_model()
 
-model.save_weights('weights_audio')
+    print('Train...')
+    model.fit(X, Y, batch_size=25, nb_epoch=20,
+              validation_split=VALIDATION_SPLIT)
 
-print('Done.')
+    model.save_weights('weights_audio')
+
+    print('Done.')
