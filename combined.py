@@ -13,6 +13,11 @@ word_model.load_weights('weights_words')
 
 
 def audio_predict(fpath):
+    """
+
+    :param fpath: Path to wav file
+    :return: Likelihood of a joke (between 0 and 1)
+    """
     v = VoiceActivityDetector(fpath)
     detected = v.detect_speech()
 
@@ -24,10 +29,16 @@ def audio_predict(fpath):
 
     predict = audio_model.predict(X_reshaped)
 
-    return predict[0]
+    return predict[0][0]
 
 
 def word_predict(transcription):
+    """
+
+    :param transcription: Transcribed sentence
+    :return: Likelihood of a joke (between 0 and 1)
+    """
+
     texts = [transcription]
 
     # finally, vectorize the text samples into a 2D integer tensor
@@ -40,8 +51,10 @@ def word_predict(transcription):
 
     predict = word_model.predict(data)
 
-    return predict[0]
+    return predict[0][1]
 
+
+print('Waiting for input...')
 
 for line in sys.stdin:
     wav_path, transcription = line.split('$')
