@@ -26,6 +26,7 @@ from keras.models import Model
 import sys
 import pickle
 
+
 BASE_DIR = ''
 GLOVE_DIR = BASE_DIR + 'glove.6B/'
 JOKE_DIR = BASE_DIR + 'joke-data/'
@@ -34,7 +35,7 @@ NONJOKE_FNAMES = ['short_wiki_sentences.pickle']
 MAX_SEQUENCE_LENGTH = 1000
 MAX_NB_WORDS = 20000
 EMBEDDING_DIM = 100
-VALIDATION_SPLIT = 0.2
+VALIDATION_SPLIT = 0.5
 
 # first, build index mapping words in the embeddings set
 # to their embedding vector
@@ -146,7 +147,7 @@ x = MaxPooling1D(5)(x)
 x = Conv1D(128, 5, activation='relu')(x)
 x = MaxPooling1D(35)(x)
 x = Flatten()(x)
-x = Dense(128, activation='relu')(x)
+x = Dense(50, activation='relu')(x)
 preds = Dense(2, activation='softmax')(x)
 
 model = Model(sequence_input, preds)
