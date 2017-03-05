@@ -29,8 +29,8 @@ import pickle
 BASE_DIR = ''
 GLOVE_DIR = BASE_DIR + 'glove.6B/'
 JOKE_DIR = BASE_DIR + 'joke-data/'
-JOKE_FNAMES = ['humorous_jokes.pickle', 'short_oneliners.pickle', 'longer_jokes.pickle']
-NONJOKE_FNAMES = ['movie_dialogs.txt']
+JOKE_FNAMES = ['humorous_jokes.pickle']
+NONJOKE_FNAMES = ['short_wiki_sentences.pickle']
 MAX_SEQUENCE_LENGTH = 1000
 MAX_NB_WORDS = 20000
 EMBEDDING_DIM = 100
