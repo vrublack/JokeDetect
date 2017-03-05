@@ -1,6 +1,6 @@
-from train_audio import make_model
+from train_audio import make_audio_model
 
-model, X, Y = make_model()
+model, X, Y = make_audio_model()
 
 model.load_weights('weights_audio')
 

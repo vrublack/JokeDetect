@@ -13,7 +13,7 @@ VALIDATION_SPLIT = 0.1
 LSTM_UNITS = 150
 
 
-def make_model():
+def make_audio_model():
     np.random.seed(1235)
 
     JOKES_DIR = 'audio/jokes/processed'
@@ -59,7 +59,7 @@ def make_model():
 
 
 if __name__ == '__main__':
-    model, X, Y = make_model()
+    model, X, Y = make_audio_model()
 
     print('Train...')
     model.fit(X, Y, batch_size=25, nb_epoch=20,
