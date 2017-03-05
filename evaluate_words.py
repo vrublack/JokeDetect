@@ -32,7 +32,7 @@ import pickle
 BASE_DIR = ''
 GLOVE_DIR = BASE_DIR + 'glove.6B/'
 JOKE_DIR = BASE_DIR + 'joke-data/'
-JOKE_FNAMES = ['humorous_jokes.pickle', 'short_oneliners.pickle']
+JOKE_FNAMES = ['humorous_jokes.pickle']
 NONJOKE_FNAMES = ['short_wiki_sentences.pickle']
 MAX_SEQUENCE_LENGTH = 1000
 MAX_NB_WORDS = 20000
@@ -135,7 +135,7 @@ x = MaxPooling1D(5)(x)
 x = Conv1D(128, 5, activation='relu')(x)
 x = MaxPooling1D(35)(x)
 x = Flatten()(x)
-x = Dense(128, activation='relu')(x)
+x = Dense(50, activation='relu')(x)
 preds = Dense(2, activation='softmax')(x)
 
 model = Model(sequence_input, preds)
@@ -159,6 +159,10 @@ def make_predict_data():
     labels.append(1)
     texts.append("Why did the chicken cross the road?")
     labels.append(1)
+    texts.append("Light travels faster than sound. This is why some people appear bright until you hear them speak.")
+    labels.append(1)
+    texts.append("Men have two emotions: Hungry and Horny. If you see him without an erection, make him a sandwich.")
+    labels.append(1)
     texts.append("In the sixteenths century, Poland has seen a big influx in immigrants.")
     labels.append(0)
     texts.append("The united kingdom has a population of about 300 people")
@@ -167,7 +171,10 @@ def make_predict_data():
     labels.append(0)
     texts.append("Go to the homepage and download the song. It's an mp3.")
     labels.append(0)
-
+    texts.append("We've had a quick scout around the internet for the best one-liners we could find and these were the ones that made us chortle")
+    labels.append(0)
+    texts.append("This looks absolutely heavenly. Sometimes simpler is better.")
+    labels.append(0)
 
 
     # finally, vectorize the text samples into a 2D integer tensor

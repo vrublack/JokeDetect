@@ -30,12 +30,12 @@ import pickle
 BASE_DIR = ''
 GLOVE_DIR = BASE_DIR + 'glove.6B/'
 JOKE_DIR = BASE_DIR + 'joke-data/'
-JOKE_FNAMES = ['humorous_jokes.pickle']
-NONJOKE_FNAMES = ['short_wiki_sentences.pickle']
+JOKE_FNAMES = ['humorous_jokes.pickle', 'short_oneliners.pickle']
+NONJOKE_FNAMES = ['short_wiki_sentences.pickle', 'movie_dialogs.txt']
 MAX_SEQUENCE_LENGTH = 1000
 MAX_NB_WORDS = 20000
 EMBEDDING_DIM = 100
-VALIDATION_SPLIT = 0.5
+VALIDATION_SPLIT = 0.2
 
 # first, build index mapping words in the embeddings set
 # to their embedding vector
@@ -85,6 +85,8 @@ for name in NONJOKE_FNAMES:
                     l = '???'
         else:
             b = pickle.load(f, encoding='latin1')
+        if len(b) > 30000:
+            b = b[:30000]
         for l in b:
             texts.append(l)
             labels.append(0)
@@ -113,6 +115,8 @@ labels = labels[indices]
 
 x_train = data[:]
 y_train = labels[:]
+
+del embeddings_index
 
 print('Preparing embedding matrix.')
 
