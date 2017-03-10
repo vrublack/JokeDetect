@@ -54,13 +54,15 @@ def word_predict(transcription):
     return predict[0][1]
 
 
-print('Waiting for input...')
+if __name__ == '__main__':
 
-for line in sys.stdin:
-    wav_path, transcription = line.split('$')
+    print('Waiting for input...')
 
-    word_pred = word_predict(transcription)
+    for line in sys.stdin:
+        wav_path, transcription = line.split('$')
 
-    audio_pred = audio_predict(wav_path)
+        word_pred = word_predict(transcription)
 
-    print('Word pred: {}, audio pred: {}'.format(word_pred, audio_pred))
+        audio_pred = audio_predict(wav_path)
+
+        print('Word pred: {}, audio pred: {}'.format(word_pred, audio_pred))
